@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rethink Software - Novas mentes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background: #ffffff;
+            overflow-x: hidden;
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            color: #202124;
+        }
+
+        /* Ambient Glow */
+        .ambient-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw;
+            height: 80vh;
+            background: radial-gradient(circle, rgba(26, 115, 232, 0.05) 0%, rgba(157, 78, 221, 0.02) 40%, rgba(255, 255, 255, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Navigation Bar */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-sizing: border-box;
+            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.5);
+            /* Glass effect */
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-logo {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #202124;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #5f6368;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: #202124;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+            z-index: 101;
+            padding: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: #202124;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 99;
+            transition: right 0.3s ease;
+            padding: 5rem 2rem 2rem;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .mobile-menu-links a {
+            text-decoration: none;
+            color: #5f6368;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: color 0.2s ease;
+            padding: 0.5rem 0;
+        }
+
+        .mobile-menu-links a:hover {
+            color: #202124;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 98;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #canvas-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .ui-overlay {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 5.5rem;
+            /* Larger, bolder */
+            font-weight: 700;
+            /* Extra Bold */
+            letter-spacing: -4px;
+            /* Tight tech tracking */
+            line-height: 1.1;
+            margin: 0 0 1rem 0;
+            background: linear-gradient(135deg, #000000 0%, #4a4a4a 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.95;
+            animation: fadeInAdmin 1.5s ease-out;
+        }
+
+        p.subline {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: #5f6368;
+            margin: 0;
+            letter-spacing: -0.5px;
+            opacity: 0;
+            animation: fadeInSub 2s ease-out 0.5s forwards;
+        }
+
+        .cta-button {
+            margin-top: 3rem;
+            padding: 14px 36px;
+            background: #202124;
+            color: #ffffff;
+            border-radius: 30px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+            pointer-events: auto;
+            opacity: 0;
+            animation: fadeInBtn 1.5s ease-out 1s forwards;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: #000;
+        }
+
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: 1.5rem;
+            width: 100%;
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            color: #9aa0a6;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        @keyframes fadeInAdmin {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInSub {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInBtn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+                letter-spacing: -1.5px;
+                padding: 0 1rem;
+            }
+
+            p.subline {
+                font-size: 1rem;
+                padding: 0 1rem;
+            }
+
+            nav {
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .cta-button {
+                padding: 12px 28px;
+                font-size: 1rem;
+                margin-top: 2rem;
+            }
+
+            .ui-overlay {
+                padding: 0 1rem;
+            }
+
+            footer {
+                font-size: 0.75rem;
+                bottom: 1rem;
+                padding: 0 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+                letter-spacing: -1px;
+            }
+
+            p.subline {
+                font-size: 0.9rem;
+            }
+
+            nav {
+                padding: 0.8rem 1rem;
+            }
+
+            .nav-logo {
+                font-size: 1rem;
+            }
+
+            .mobile-menu {
+                width: 85%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a href="index4.html" class="nav-logo">Rethink Software</a>
+        <div class="nav-links">
+            <a href="index.html">Início</a>
+            <a href="solutions.html">Soluções</a>
+            <a href="about.html">Sobre</a>
+            <a href="contact.html">Contato</a>
+        </div>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-links">
+            <a href="index.html">Início</a>
+            <a href="solutions.html">Soluções</a>
+            <a href="about.html">Sobre</a>
+            <a href="contact.html">Contato</a>
+        </div>
+    </div>
+
+    <div class="ambient-glow"></div>
+    <canvas id="canvas-particles"></canvas>
+
+    <div class="ui-overlay">
+        <h1>Rethink Software</h1>
+        <p class="subline">O simples por design</p>
+        <a href="https://wa.me/5569992418704?text=Gostaria%20de%20conhecer%20mais%20sobre%20os%20servi%C3%A7os%20Rethink%20Software"
+            class="cta-button">Começar agora</a>
+    </div>
+
+    <footer>
+        Desenvolvido por Rethink Software
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('canvas-particles');
+        const ctx = canvas.getContext('2d');
+
+        let particlesArray = [];
+        const numberOfParticles = 500;
+
+        // Sphere Settings
+        const globeRadius = 300;
+        let rotationX = 0;
+        let rotationY = 0;
+        let rotationSpeedXX = 0;
+        let rotationSpeedYY = 0;
+
+        // Interaction
+        let mouseX = -9999;
+        let mouseY = -9999;
+        const interactionRadius = 200;
+        const perspective = 800;
+
+        window.addEventListener('mousemove', (event) => {
+            mouseX = event.clientX - window.innerWidth / 2;
+            mouseY = event.clientY - window.innerHeight / 2;
+
+            rotationSpeedYY = (mouseX / window.innerWidth) * 0.02;
+            rotationSpeedXX = -(mouseY / window.innerHeight) * 0.02;
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        });
+
+        class Particle3D {
+            constructor() {
+                // Organic Sphere (Volumetric Cloud)
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+
+                // Volumetric Fuzz: Radius +/- 70px
+                const r = globeRadius + (Math.random() * 140 - 70);
+
+                this.ox = r * Math.sin(phi) * Math.cos(theta);
+                this.oy = r * Math.sin(phi) * Math.sin(theta);
+                this.oz = r * Math.cos(phi);
+
+                this.x = this.ox;
+                this.y = this.oy;
+                this.z = this.oz;
+
+                this.vx = 0;
+                this.vy = 0;
+                this.vz = 0;
+
+                this.baseSize = Math.random() * 2 + 1;
+                this.screenX = 0;
+                this.screenY = 0;
+                this.scale = 1;
+
+                this.friction = 0.92;
+                this.springFactor = 0.05;
+            }
+
+            update(rX, rY) {
+                // 3D Rotation
+                const cosY = Math.cos(rY);
+                const sinY = Math.sin(rY);
+                let tx1 = this.ox * cosY - this.oz * sinY;
+                let tz1 = this.oz * cosY + this.ox * sinY;
+                let ty1 = this.oy;
+
+                const cosX = Math.cos(rX);
+                const sinX = Math.sin(rX);
+                let ty2 = ty1 * cosX - tz1 * sinX;
+                let tz2 = tz1 * cosX + ty1 * sinX;
+                let tx2 = tx1;
+
+                const targetX = tx2;
+                const targetY = ty2;
+                const targetZ = tz2;
+
+                // Physics: Spring to Target
+                const dx = targetX - this.x;
+                const dy = targetY - this.y;
+                const dz = targetZ - this.z;
+
+                this.vx += dx * this.springFactor;
+                this.vy += dy * this.springFactor;
+                this.vz += dz * this.springFactor;
+
+                // Projection for Interaction
+                const distanceRatio = perspective / (perspective + this.z);
+                const sX = this.x * distanceRatio;
+                const sY = this.y * distanceRatio;
+
+                // Physics: Mouse Repulsion
+                const mDx = sX - mouseX;
+                const mDy = sY - mouseY;
+                const dist = Math.sqrt(mDx * mDx + mDy * mDy);
+
+                if (dist < interactionRadius) {
+                    const force = (interactionRadius - dist) / interactionRadius;
+                    const angle = Math.atan2(mDy, mDx);
+                    const push = force * 15;
+                    this.vx += Math.cos(angle) * push;
+                    this.vy += Math.sin(angle) * push;
+                }
+
+                // Integration
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+                this.vz *= this.friction;
+
+                this.x += this.vx;
+                this.y += this.vy;
+                this.z += this.vz;
+
+                // Final Projection
+                this.scale = perspective / (perspective + this.z);
+                this.screenX = (canvas.width / 2) + this.x * this.scale;
+                this.screenY = (canvas.height / 2) + this.y * this.scale;
+            }
+
+            draw() {
+                const alpha = Math.max(0.1, (this.z + globeRadius * 1.5) / (globeRadius * 3));
+                ctx.beginPath();
+                ctx.arc(this.screenX, this.screenY, this.baseSize * this.scale, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(32, 33, 36, ${alpha})`;
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle3D());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            rotationY += 0.003 + rotationSpeedYY;
+            rotationX += 0.003 + rotationSpeedXX;
+            rotationSpeedXX *= 0.95;
+            rotationSpeedYY *= 0.95;
+
+            particlesArray.forEach(p => {
+                p.update(rotationX, rotationY);
+                p.draw();
+            });
+
+            // Connect nearby particles
+            for (let i = 0; i < particlesArray.length; i++) {
+                for (let j = i; j < particlesArray.length; j++) {
+                    const p1 = particlesArray[i];
+                    const p2 = particlesArray[j];
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const dz = p1.z - p2.z;
+                    const distSq = dx * dx + dy * dy + dz * dz;
+
+                    if (distSq < 4900) { // 70*70
+                        const alpha = Math.max(0.05, (p1.z + globeRadius) / (globeRadius * 2)) * 0.25;
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(32, 33, 36, ${alpha})`;
+                        ctx.lineWidth = 0.5 * p1.scale;
+                        ctx.moveTo(p1.screenX, p1.screenY);
+                        ctx.lineTo(p2.screenX, p2.screenY);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        // Hamburger Menu Toggle
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const mobileMenuLinks = document.querySelectorAll('.mobile-menu-links a');
+
+        function toggleMenu() {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        hamburger.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        // Close menu when clicking on a link
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                toggleMenu();
+            });
+        });
+    </script>
+</body>
+
+</html>
